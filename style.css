@@ -1,16 +1,28 @@
 /* Google Fonts */
-body {
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&family=Playfair+Display:wght@600&display=swap');
+
+* {
   margin: 0;
   padding: 0;
+  box-sizing: border-box;
+}
+
+body {
   font-family: 'Montserrat', sans-serif;
   background-color: #f9f8f6;
   color: #333;
+  line-height: 1.6;
 }
 
 /* Header */
 .header {
   text-align: center;
-  padding-top: 1.5rem;
+  padding: 1.5rem 1rem 0.5rem;
+  background-color: #fff;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  position: sticky;
+  top: 0;
+  z-index: 999;
 }
 
 .logo-container {
@@ -20,12 +32,19 @@ body {
 .logo {
   height: 90px;
   width: auto;
+  animation: floatLogo 3s ease-in-out infinite;
+}
+
+@keyframes floatLogo {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-6px); }
 }
 
 .navbar {
   display: flex;
   justify-content: center;
-  gap: 3rem;
+  gap: 2rem;
+  flex-wrap: wrap;
   margin-top: 0.5rem;
 }
 
@@ -33,8 +52,10 @@ body {
   text-decoration: none;
   font-size: 1rem;
   color: #5d4c59;
-  font-weight: 500;
+  font-weight: 600;
   position: relative;
+  padding: 0.25rem;
+  transition: color 0.3s ease;
 }
 
 .nav-link::after {
@@ -45,30 +66,35 @@ body {
   background: #c8a2c8;
   transition: 0.3s;
   position: absolute;
-  bottom: -5px;
+  bottom: -2px;
   left: 0;
+}
+
+.nav-link:hover {
+  color: #a85aa8;
 }
 
 .nav-link:hover::after {
   width: 100%;
 }
 
-/* Hero */
+/* Hero Section */
 .hero {
-  background: url('hero-bg.jpg') center/cover no-repeat;
-  height: 70vh;
+  background: linear-gradient(rgba(200,162,200,0.2), rgba(200,162,200,0.5)), url('images/logo.png') center/cover no-repeat;
+  height: 60vh;
   display: flex;
   align-items: center;
   justify-content: center;
   text-align: center;
   position: relative;
+  border-bottom: 1px solid #e4d8e4;
 }
 
 .hero::after {
   content: "";
   position: absolute;
   top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.65);
   z-index: 1;
 }
 
@@ -76,11 +102,18 @@ body {
   z-index: 2;
   position: relative;
   padding: 2rem;
+  transform-style: preserve-3d;
+  transform: translateZ(30px);
+  transition: transform 0.5s ease;
+}
+
+.hero:hover .hero-content {
+  transform: translateZ(50px);
 }
 
 .hero h1 {
   font-family: 'Playfair Display', serif;
-  font-size: 2.5rem;
+  font-size: 3rem;
   color: #4d3951;
   margin-bottom: 1rem;
 }
@@ -89,26 +122,40 @@ body {
   text-decoration: none;
   background-color: #c8a2c8;
   color: white;
-  padding: 0.6rem 1.2rem;
-  border-radius: 25px;
+  padding: 0.7rem 1.5rem;
+  border-radius: 30px;
   font-size: 1rem;
-  transition: background 0.3s ease;
+  font-weight: 600;
+  transition: all 0.3s ease;
   display: inline-block;
+  box-shadow: 0 5px 15px rgba(200,162,200,0.3);
+  transform: translateZ(0);
+  perspective: 800px;
+  transform-style: preserve-3d;
 }
 
 .btn:hover {
-  background-color: #a979a9;
+  background-color: #a85aa8;
+  box-shadow: 0 10px 25px rgba(168,90,168,0.3);
+  transform: translateY(-2px);
+}
+
+.btn:active {
+  transform: translateY(1px);
+  box-shadow: 0 3px 8px rgba(168,90,168,0.3);
 }
 
 /* Product Section */
 .products {
   padding: 4rem 2rem;
   text-align: center;
+  background-color: #fff;
 }
 
 .products h2 {
   font-family: 'Playfair Display', serif;
-  font-size: 2rem;
+  font-size: 2.5rem;
+  color: #4d3951;
   margin-bottom: 2rem;
 }
 
@@ -123,30 +170,37 @@ body {
   background: white;
   border-radius: 20px;
   padding: 1rem;
-  width: 90%;
-  max-width: 280px;
-  box-shadow: 0 8px 16px rgba(0,0,0,0.05);
-  transition: transform 0.3s ease;
+  width: 100%;
+  max-width: 300px;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transform-style: preserve-3d;
+  perspective: 1000px;
+  cursor: pointer;
 }
 
 .product-card:hover {
-  transform: translateY(-5px);
+  transform: rotateY(5deg) rotateX(5deg) scale(1.02);
+  box-shadow: 0 15px 30px rgba(0,0,0,0.15);
 }
 
 .product-card img {
   width: 100%;
   border-radius: 15px;
-  height: auto;
+  height: 200px;
+  object-fit: cover;
 }
 
 .product-card h3 {
-  margin: 0.8rem 0 0.2rem;
+  margin: 0.8rem 0 0.4rem;
   color: #4d3951;
+  font-size: 1.2rem;
 }
 
 .product-card p {
   margin-bottom: 1rem;
   color: #7d657e;
+  font-size: 1rem;
 }
 
 .product-card .buttons {
@@ -158,6 +212,41 @@ body {
 .product-card .btn {
   font-size: 0.9rem;
   padding: 0.5rem 1rem;
+}
+
+/* Forms (Login/Register) */
+.form-container {
+  max-width: 400px;
+  margin: 4rem auto;
+  background: white;
+  padding: 2rem;
+  border-radius: 15px;
+  box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+}
+
+.form-container h2 {
+  text-align: center;
+  margin-bottom: 1.5rem;
+  font-family: 'Playfair Display', serif;
+  color: #4d3951;
+}
+
+.form-group {
+  margin-bottom: 1rem;
+  text-align: left;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 0.6rem;
+  border: 1px solid #ccc;
+  border-radius: 10px;
 }
 
 /* Footer */

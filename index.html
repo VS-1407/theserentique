@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Home</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+
+  <!-- Header -->
+  <header class="header">
+    <div class="logo-container">
+      <img src="logo.png" alt="Logo" class="logo" />
+    </div>
+    <nav class="navbar">
+      <a href="index.html" class="nav-link">Home</a>
+      <a href="products.html" class="nav-link">Products</a>
+      <a href="cart.html" class="nav-link">Cart</a>
+      <a href="login.html" class="nav-link">Login</a>
+      <a href="register.html" class="nav-link">Register</a>
+    </nav>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="hero-content">
+      <h1>Welcome to Our Store</h1>
+      <a href="products.html" class="btn">Shop Now</a>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    &copy; 2025 Your Store. All rights reserved.
+  </footer>
+
+  <!-- Firebase Auth Protection -->
+  <script type="module">
+    import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-auth.js";
+
+    const firebaseConfig = {
+  apiKey: "AIzaSyDG8oEBsWlFtq8qnkjou1w26E3sdSkirw0",
+  authDomain: "theserentique-23135.firebaseapp.com",
+  projectId: "theserentique-23135",
+  storageBucket: "theserentique-23135.firebasestorage.app",
+  messagingSenderId: "387982326041",
+  appId: "1:387982326041:web:a37f0204f3b72c57ef6d88",
+  measurementId: "G-VJ9G7M9ER4"
+};
+
+    const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
+    const auth = getAuth(app);
+
+    onAuthStateChanged(auth, user => {
+      if (!user) {
+        window.location.href = "login.html";
+      }
+    });
+
+  // Optional logout function
+    window.logout = function () {
+      signOut(auth).then(() => {
+        alert("Logged out");
+        window.location.href = "login.html";
+      });
+    };
+  </script>
+
+</body>
+</html>

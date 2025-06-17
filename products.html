@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Products</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+
+  <!-- Header -->
+  <header class="header">
+    <div class="logo-container">
+      <img src="logo.png" alt="Logo" class="logo" />
+    </div>
+    <nav class="navbar">
+      <a href="index.html" class="nav-link">Home</a>
+      <a href="products.html" class="nav-link">Products</a>
+      <a href="cart.html" class="nav-link">Cart</a>
+      <a href="login.html" class="nav-link">Login</a>
+      <a href="register.html" class="nav-link">Register</a>
+      <a href="#" class="nav-link" onclick="logout()">Logout</a>
+    </nav>
+  </header>
+
+  <!-- Products Section -->
+  <section class="products">
+    <h2>Our Products</h2>
+    <div class="product-grid">
+
+      <div class="product-card">
+        <img src="CL.jpg" alt="CACAO LUXE" />
+        <h3>CACAO LUXE</h3>
+        <p>$19.99</p>
+        <div class="buttons">
+          <a href="#" class="btn">View</a>
+          <button class="btn" onclick="addToCart('CACAO LUXE', 19.99, 'CL.jpg')">Add to Cart</button>
+        </div>
+      </div>
+
+      <div class="product-card">
+        <img src="MH.jpg" alt="MAJESTIC HORIZON" />
+        <h3>MAJESTIC HORIZON</h3>
+        <p>$29.99</p>
+        <div class="buttons">
+          <a href="#" class="btn">View</a>
+          <button class="btn" onclick="addToCart('MAJESTIC HORIZON', 29.99, 'MH.jpg')">Add to Cart</button>
+        </div>
+      </div>
+
+      <div class="product-card">
+        <img src="NE.jpg" alt="NIOR ESSENCE" />
+        <h3>NIOR ESSENCE</h3>
+        <p>$29.99</p>
+        <div class="buttons">
+          <a href="#" class="btn">View</a>
+          <button class="btn" onclick="addToCart('NIOR ESSENCE', 29.99, 'NE.jpg')">Add to Cart</button>
+        </div>
+      </div>
+
+      <div class="product-card">
+        <img src="SG.jpg" alt="SYLVAN GRACE" />
+        <h3>SYLVAN GRACE</h3>
+        <p>$29.99</p>
+        <div class="buttons">
+          <a href="#" class="btn">View</a>
+          <button class="btn" onclick="addToCart('SYLVAN GRACE', 29.99, 'SG.jpg')">Add to Cart</button>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    &copy; 2025 Your Store. All rights reserved.
+  </footer>
+
+  <!-- Firebase Auth Protection + Logout -->
+  <script type="module">
+    import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDG8oEBsWlFtq8qnkjou1w26E3sdSkirw0",
+      authDomain: "theserentique-23135.firebaseapp.com",
+      projectId: "theserentique-23135",
+      storageBucket: "theserentique-23135.firebasestorage.app",
+      messagingSenderId: "387982326041",
+      appId: "1:387982326041:web:a37f0204f3b72c57ef6d88",
+      measurementId: "G-VJ9G7M9ER4"
+    };
+
+    const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
+    const auth = getAuth(app);
+
+    onAuthStateChanged(auth, user => {
+      if (!user) {
+        window.location.href = "login.html";
+      }
+    });
+
+    window.logout = function () {
+      signOut(auth).then(() => {
+        alert("You have been logged out.");
+        window.location.href = "login.html";
+      });
+    };
+  </script>
+
+  <!-- Add to Cart Logic -->
+  <script>
+    function addToCart(name, price, image) {
+      let cart = JSON.parse(localStorage.getItem('cart')) || [];
+
+      const existing = cart.find(products => product.name === name);
+      if (existing) {
+        existing.quantity += 1;
+      } else {
+        cart.push({ name, price, image, quantity: 1 });
+      }
+
+      localStorage.setItem('cart', JSON.stringify(cart));
+      alert(`${name} added to cart!`);
+    }
+  </script>
+
+</body>
+</html>

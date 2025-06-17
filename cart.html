@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cart</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="header">
+    <div class="logo-container">
+      <img src="logo.png" alt="Logo" class="logo" />
+    </div>
+    <nav class="navbar">
+      <a href="index.html" class="nav-link">Home</a>
+      <a href="products.html" class="nav-link">Products</a>
+      <a href="cart.html" class="nav-link">Cart</a>
+      <a href="login.html" class="nav-link">Login</a>
+      <a href="register.html" class="nav-link">Register</a>
+    </nav>
+  </header>
+
+  <!-- Cart Section -->
+  <section class="products">
+    <h2>Your Shopping Cart</h2>
+    <div class="product-grid" id="cart-container">
+      <!-- Items will be inserted here -->
+    </div>
+
+    <p id="total-price" style="text-align:center; margin-top:2rem; font-weight:bold;"></p>
+    
+    <div style="text-align:center; margin-top:1rem;">
+      <a href="#" class="btn">Proceed to Checkout</a>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    &copy; 2025 Your Store. All rights reserved.
+  </footer>
+
+  <!-- JavaScript -->
+  <script>
+    const cart = JSON.parse(localStorage.getItem('cart')) || [];
+    const container = document.getElementById('cart-container');
+    const totalDisplay = document.getElementById('total-price');
+    let total = 0;
+
+    function removeFromCart(index) {
+      cart.splice(index, 1);
+      localStorage.setItem('cart', JSON.stringify(cart));
+      location.reload(); // Refresh to show updated cart
+    }
+
+    if (cart.length === 0) {
+      container.innerHTML = '<p style="text-align:center; width:100%;">Your cart is empty.</p>';
+    } else {
+      cart.forEach((products, index) => {
+        const div = document.createElement('div');
+        div.className = 'product-card';
+        div.innerHTML = `
+          <img src="${product.image}" alt="${product.name}">
+          <h3>${product.name}</h3>
+          <p>Quantity: ${product.quantity}</p>
+          <p>Price: $${(product.price * product.quantity).toFixed(2)}</p>
+          <div class="buttons">
+            <button class="btn" onclick="removeFromCart(${index})">Remove</button>
+          </div>
+        `;
+        container.appendChild(div);
+        total += product.price * product.quantity;
+      });
+
+      totalDisplay.innerText = `Total: $${total.toFixed(2)}`;
+    }
+  </script>
+
+</body>
+</html>
