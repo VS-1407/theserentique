@@ -1,49 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Login</title>
-  <link rel="stylesheet" href="style.css" />
-
-  <style>
-    .form-container {
-      max-width: 400px;
-      margin: 4rem auto;
-      background: white;
-      padding: 2rem;
-      border-radius: 15px;
-      box-shadow: 0 8px 16px rgba(0,0,0,0.1);
-    }
-    .form-container h2 {
-      text-align: center;
-      margin-bottom: 1.5rem;
-    }
-    .form-group {
-      margin-bottom: 1rem;
-    }
-    .form-group label {
-      display: block;
-      margin-bottom: 0.5rem;
-    }
-    .form-group input {
-      width: 100%;
-      padding: 0.6rem;
-      border: 1px solid #ccc;
-      border-radius: 10px;
-    }
-    .form-container .btn {
-      width: 100%;
-      margin-top: 1rem;
-    }
-  </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - Your Store</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="app.js" defer></script>
 </head>
 <body>
-
-  <!-- Header -->
   <header class="header">
     <div class="logo-container">
-      <img src="logo.png" alt="Logo" class="logo" />
+      <img src="logo.png" alt="Your Store Logo" class="logo">
     </div>
     <nav class="navbar">
       <a href="index.html" class="nav-link">Home</a>
@@ -51,71 +18,27 @@
       <a href="cart.html" class="nav-link">Cart</a>
       <a href="login.html" class="nav-link">Login</a>
       <a href="register.html" class="nav-link">Register</a>
+      <a href="#logout" class="nav-link">Logout</a>
     </nav>
   </header>
 
-  <!-- Login Form -->
-  <div class="form-container">
+  <section class="form-container">
     <h2>Login</h2>
     <form id="login-form">
       <div class="form-group">
-        <label for="email">Email</label>
-        <input type="email" id="email" required />
+        <label for="login-email">Email</label>
+        <input type="email" id="login-email" required>
       </div>
       <div class="form-group">
-        <label for="password">Password</label>
-        <input type="password" id="password" required />
+        <label for="login-password">Password</label>
+        <input type="password" id="login-password" required>
       </div>
-      <button type="submit" class="btn">Login</button>
+      <button type="submit" class="btn" aria-label="Submit login form">Login</button>
     </form>
-  </div>
+  </section>
 
-  <!-- Footer -->
   <footer class="footer">
-    &copy; 2025 Your Store. All rights reserved.
+    <p>© 2025 Your Store. All rights reserved.</p>
   </footer>
-
-  <!-- ✅ Firebase Login Script -->
-  <script type="module">
-    import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js";
-    import { getAuth, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-auth.js";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyDG8oEBsWlFtq8qnkjou1w26E3sdSkirw0",
-      authDomain: "theserentique-23135.firebaseapp.com",
-      projectId: "theserentique-23135",
-      storageBucket: "theserentique-23135.firebasestorage.app",
-      messagingSenderId: "387982326041",
-      appId: "1:387982326041:web:a37f0204f3b72c57ef6d88",
-      measurementId: "G-VJ9G7M9ER4"
-    };
-
-    const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
-    const auth = getAuth(app);
-
-    document.getElementById("login-form").addEventListener("submit", function(e) {
-      e.preventDefault();
-      const email = document.getElementById("email").value;
-      const password = document.getElementById("password").value;
-
-      signInWithEmailAndPassword(auth, email, password)
-        .then(() => {
-          alert("Login successful!");
-          window.location.href = "index.html";
-        })
-        .catch(error => {
-          alert("Error: " + error.message);
-        });
-    });
-
-    // Optional logout function
-    window.logout = function () {
-      signOut(auth).then(() => {
-        alert("Logged out");
-        window.location.href = "login.html";
-      });
-    };
-  </script>
-
 </body>
 </html>
