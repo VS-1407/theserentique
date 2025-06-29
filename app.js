@@ -1,15 +1,18 @@
 /**
  * Main Application Script
- * Fixed syntax error and enhanced for reliable Add to Cart functionality
+ * Enhanced with login section in top-right corner
  */
 
 document.addEventListener('DOMContentLoaded', () => {
   console.log('DOM fully loaded, initializing script...');
   console.log('Current page:', window.location.pathname);
 
-  // Initialize cart and user
+  // Initialize cart, user, orders, address, and payment options
   let cart = JSON.parse(localStorage.getItem('cart')) || [];
   let currentUser = JSON.parse(localStorage.getItem('currentUser')) || null;
+  let userOrders = JSON.parse(localStorage.getItem('userOrders')) || [];
+  let userAddress = JSON.parse(localStorage.getItem('userAddress')) || null;
+  let savedPayments = JSON.parse(localStorage.getItem('savedPayments')) || [];
 
   // Initialize Stripe (only for checkout.html)
   const stripe = typeof Stripe !== 'undefined' ? Stripe('pk_test_51J9Z5zK1m2X3Y4Z5W6A7B8C9D0E1F2G3H4I5J6K7L8M9N0O1P2Q3R4S5T6U7V8W9X0Y1Z2A3B4C5D6E7F8G9H0I') : null;
@@ -54,6 +57,21 @@ document.addEventListener('DOMContentLoaded', () => {
     displayCart();
   };
 
+  // Update item quantity
+  const updateCartItemQuantity = (productName, change) => {
+    console.log(`Updating quantity for ${productName} by ${change}`);
+    const item = cart.find(item => item.name === productName);
+    if (item) {
+      item.quantity += change;
+      if (item.quantity <= 0) {
+        removeFromCart(productName);
+      } else {
+        saveCart();
+        displayCart();
+      }
+    }
+  };
+
   // Clear entire cart
   const clearCart = () => {
     console.log('Clearing cart');
@@ -70,8 +88,25 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    if (cart.length === 0) {
-      cartContainer.innerHTML = '<p>Your cart is empty.</p>';
+   if (cart.length === 0) {
+  cartContainer.innerHTML = `
+    <div style="
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 50vh;
+      text-align: center;
+    ">
+      <div>
+        <h2 style="font-size: 2rem; margin-bottom: 1rem; color: #4d3951;">Your Cart</h2>
+        <p style="font-size: 1.3rem; margin-bottom: 1rem; color: #7d657e;">Your cart is empty.</p>
+        <button class="btn clear-cart-btn" style="margin: 0.5rem;">Clear Cart</button>
+      </div>
+    </div>
+  `;
+
+
       const checkoutBtn = document.querySelector('.checkout-btn');
       if (checkoutBtn) checkoutBtn.style.display = 'none';
       return;
@@ -82,11 +117,11 @@ document.addEventListener('DOMContentLoaded', () => {
       <table style="width: 100%; border-collapse: collapse; margin-bottom: 1rem;">
         <thead>
           <tr>
-            <th style="padding: 0.5rem; text-align: left;">Product</th>
-            <th style="padding: 0.5rem; text-align: left;">Price</th>
-            <th style="padding: 0.5rem; text-align: left;">Quantity</th>
-            <th style="padding: 0.5rem; text-align: left;">Total</th>
-            <th style="padding: 0.5rem; text-align: left;">Action</th>
+            <th style="padding: 0.75rem; text-align: left;">Product</th>
+            <th style="padding: 0.75rem; text-align: left;">Price</th>
+            <th style="padding: 0.75rem; text-align: left;">Quantity</th>
+            <th style="padding: 0.75rem; text-align: left;">Total</th>
+            <th style="padding: 0.75rem; text-align: left;">Action</th>
           </tr>
         </thead>
         <tbody>
@@ -95,11 +130,15 @@ document.addEventListener('DOMContentLoaded', () => {
             total += parseFloat(itemTotal);
             return `
               <tr>
-                <td style="padding: 0.5rem;">${item.name}</td>
-                <td style="padding: 0.5rem;">$${item.price.toFixed(2)}</td>
-                <td style="padding: 0.5rem;">${item.quantity}</td>
-                <td style="padding: 0.5rem;">$${itemTotal}</td>
-                <td style="padding: 0.5rem;">
+                <td style="padding: 0.75rem;">${item.name}</td>
+                <td style="padding: 0.75rem;">$${item.price.toFixed(2)}</td>
+                <td style="padding: 0.75rem;">
+                  <button class="btn quantity-btn minus-btn" data-name="${item.name}" aria-label="Decrease quantity of ${item.name}">-</button>
+                  ${item.quantity}
+                  <button class="btn quantity-btn plus-btn" data-name="${item.name}" aria-label="Increase quantity of ${item.name}">+</button>
+                </td>
+                <td style="padding: 0.75rem;">$${itemTotal}</td>
+                <td style="padding: 0.75rem;">
                   <button class="btn remove-btn" data-name="${item.name}" aria-label="Remove ${item.name} from cart">Remove</button>
                 </td>
               </tr>
@@ -108,9 +147,9 @@ document.addEventListener('DOMContentLoaded', () => {
         </tbody>
         <tfoot>
           <tr>
-            <td colspan="3" style="padding: 0.5rem; text-align: right; font-weight: 600;">Total:</td>
-            <td style="padding: 0.5rem;">$${total.toFixed(2)}</td>
-            <td style="padding: 0.5rem;"></td>
+            <td colspan="3" style="padding: 0.75rem; text-align: right; font-weight: 600;">Total:</td>
+            <td style="padding: 0.75rem;">$${total.toFixed(2)}</td>
+            <td style="padding: 0.75rem;"></td>
           </tr>
         </tfoot>
       </table>
@@ -125,6 +164,22 @@ document.addEventListener('DOMContentLoaded', () => {
         removeFromCart(productName);
       });
     });
+
+    document.querySelectorAll('.plus-btn').forEach(button => {
+      button.addEventListener('click', () => {
+        const productName = button.getAttribute('data-name');
+        console.log(`Plus button clicked for: ${productName}`);
+        updateCartItemQuantity(productName, 1);
+      });
+    });
+
+    document.querySelectorAll('.minus-btn').forEach(button => {
+      button.addEventListener('click', () => {
+        const productName = button.getAttribute('data-name');
+        console.log(`Minus button clicked for: ${productName}`);
+        updateCartItemQuantity(productName, -1);
+      });
+    });
   };
 
   // Display cart summary (for checkout.html)
@@ -136,19 +191,31 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (cart.length === 0) {
-      summaryContainer.innerHTML = '<p>Your cart is empty.</p>';
-      return;
-    }
+  cartContainer.innerHTML = `
+    <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 300px; text-align: center;">
+      <p style="font-size: 1.3rem; margin-bottom: 1rem; color: #7d657e;">Your cart is empty.</p>
+      <button class="btn clear-cart-btn" style="margin: 0.5rem;">Clear Cart</button>
+      <button class="btn checkout-btn" style="margin: 0.5rem;">Proceed to Checkout</button>
+    </div>
+  `;
+
+  // Rebind event listeners for the buttons
+  document.querySelector('.clear-cart-btn')?.addEventListener('click', clearCart);
+  document.querySelector('.checkout-btn')?.addEventListener('click', handleCheckout);
+
+  return;
+}
+
 
     let total = 0;
     summaryContainer.innerHTML = `
       <table style="width: 100%; border-collapse: collapse; margin-bottom: 1rem;">
         <thead>
           <tr>
-            <th style="padding: 0.5rem; text-align: left;">Product</th>
-            <th style="padding: 0.5rem; text-align: left;">Price</th>
-            <th style="padding: 0.5rem; text-align: left;">Quantity</th>
-            <th style="padding: 0.5rem; text-align: left;">Total</th>
+            <th style="padding: 0.75rem; text-align: left;">Product</th>
+            <th style="padding: 0.75rem; text-align: left;">Price</th>
+            <th style="padding: 0.75rem; text-align: left;">Quantity</th>
+            <th style="padding: 0.75rem; text-align: left;">Total</th>
           </tr>
         </thead>
         <tbody>
@@ -157,18 +224,18 @@ document.addEventListener('DOMContentLoaded', () => {
             total += parseFloat(itemTotal);
             return `
               <tr>
-                <td style="padding: 0.5rem;">${item.name}</td>
-                <td style="padding: 0.5rem;">$${item.price.toFixed(2)}</td>
-                <td style="padding: 0.5rem;">${item.quantity}</td>
-                <td style="padding: 0.5rem;">$${itemTotal}</td>
+                <td style="padding: 0.75rem;">${item.name}</td>
+                <td style="padding: 0.75rem;">$${item.price.toFixed(2)}</td>
+                <td style="padding: 0.75rem;">${item.quantity}</td>
+                <td style="padding: 0.75rem;">$${itemTotal}</td>
               </tr>
             `;
           }).join('')}
         </tbody>
         <tfoot>
           <tr>
-            <td colspan="3" style="padding: 0.5rem; text-align: right; font-weight: 600;">Total:</td>
-            <td style="padding: 0.5rem;">$${total.toFixed(2)}</td>
+            <td colspan="3" style="padding: 0.75rem; text-align: right; font-weight: 600;">Total:</td>
+            <td style="padding: 0.75rem;">$${total.toFixed(2)}</td>
           </tr>
         </tfoot>
       </table>
@@ -213,6 +280,179 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   };
 
+  // Show profile modal
+  const showProfileModal = () => {
+    console.log('Showing profile modal');
+    const modal = document.createElement('div');
+    modal.className = 'modal';
+    modal.innerHTML = `
+      <div class="modal-content">
+        <span class="close-btn" aria-label="Close modal">×</span>
+        <h3>Your Profile</h3>
+        <p><strong>Name:</strong> ${currentUser.name || 'N/A'}</p>
+        <p><strong>Email:</strong> ${currentUser.email}</p>
+      </div>
+    `;
+    document.body.appendChild(modal);
+    modal.querySelector('.close-btn').addEventListener('click', () => {
+      modal.classList.add('hidden');
+      setTimeout(() => modal.remove(), 300);
+    });
+  };
+
+  // Show orders modal
+  const showOrdersModal = () => {
+    console.log('Showing orders modal');
+    const modal = document.createElement('div');
+    modal.className = 'modal';
+    let ordersHtml = userOrders.length > 0 ? `
+      <table style="width: 100%; border-collapse: collapse; margin-bottom: 1rem;">
+        <thead>
+          <tr>
+            <th style="padding: 0.75rem; text-align: left;">Order ID</th>
+            <th style="padding: 0.75rem; text-align: left;">Items</th>
+            <th style="padding: 0.75rem; text-align: left;">Total</th>
+            <th style="padding: 0.75rem; text-align: left;">Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${userOrders.map(order => `
+            <tr>
+              <td style="padding: 0.75rem;">${order.id}</td>
+              <td style="padding: 0.75rem;">${order.items.map(item => `${item.name} (x${item.quantity})`).join(', ')}</td>
+              <td style="padding: 0.75rem;">$${order.total.toFixed(2)}</td>
+              <td style="padding: 0.75rem;">${order.date}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    ` : '<p>No orders found.</p>';
+    modal.innerHTML = `
+      <div class="modal-content">
+        <span class="close-btn" aria-label="Close modal">×</span>
+        <h3>Your Orders</h3>
+        ${ordersHtml}
+      </div>
+    `;
+    document.body.appendChild(modal);
+    modal.querySelector('.close-btn').addEventListener('click', () => {
+      modal.classList.add('hidden');
+      setTimeout(() => modal.remove(), 300);
+    });
+  };
+
+  // Show manage address modal
+  const showAddressModal = () => {
+    console.log('Showing address modal');
+    const modal = document.createElement('div');
+    modal.className = 'modal';
+    modal.innerHTML = `
+      <div class="modal-content">
+        <span class="close-btn" aria-label="Close modal">×</span>
+        <h3>Manage Address</h3>
+        <form id="address-form">
+          <label for="address">Address:</label>
+          <textarea id="address" name="address" rows="4" style="width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 8px;">${userAddress ? userAddress.address : ''}</textarea>
+          <button type="submit" class="btn">Save Address</button>
+        </form>
+      </div>
+    `;
+    document.body.appendChild(modal);
+    const addressForm = modal.querySelector('#address-form');
+    addressForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const address = addressForm.querySelector('#address').value.trim();
+      if (address) {
+        userAddress = { address };
+        localStorage.setItem('userAddress', JSON.stringify(userAddress));
+        showNotification('Address saved successfully!');
+        modal.classList.add('hidden');
+        setTimeout(() => modal.remove(), 300);
+      } else {
+        showNotification('Please enter a valid address.');
+      }
+    });
+    modal.querySelector('.close-btn').addEventListener('click', () => {
+      modal.classList.add('hidden');
+      setTimeout(() => modal.remove(), 300);
+    });
+  };
+
+  // Show saved payment options modal
+  const showPaymentsModal = () => {
+    console.log('Showing payments modal');
+    const modal = document.createElement('div');
+    modal.className = 'modal';
+    let paymentsHtml = savedPayments.length > 0 ? `
+      <ul style="list-style: none; padding: 0;">
+        ${savedPayments.map(payment => `
+          <li style="padding: 0.5rem 0;">Card ending in ${payment.cardNumber} (Expires: ${payment.expiry})</li>
+        `).join('')}
+      </ul>
+    ` : '<p>No saved payment options.</p>';
+    modal.innerHTML = `
+      <div class="modal-content">
+        <span class="close-btn" aria-label="Close modal">×</span>
+        <h3>Saved Payment Options</h3>
+        ${paymentsHtml}
+      </div>
+    `;
+    document.body.appendChild(modal);
+    modal.querySelector('.close-btn').addEventListener('click', () => {
+      modal.classList.add('hidden');
+      setTimeout(() => modal.remove(), 300);
+    });
+  };
+
+  // Update login section
+  const updateLoginSection = () => {
+    const loginSections = document.querySelectorAll('.login-section');
+    loginSections.forEach(section => {
+      console.log('Updating login section, user:', currentUser ? 'Logged in' : 'Logged out');
+      if (currentUser) {
+        section.innerHTML = `
+          <div class="dropdown">
+            <button class="btn login-btn">Hi, ${currentUser.name || currentUser.email}</button>
+            <div class="dropdown-content">
+              <a href="#" class="dropdown-item profile-btn">Your Profile</a>
+              <a href="#" class="dropdown-item orders-btn">Your Orders</a>
+              <a href="#" class="dropdown-item address-btn">Manage Address</a>
+              <a href="#" class="dropdown-item payments-btn">Saved Payment Options</a>
+              <a href="#logout" class="dropdown-item logout-btn">Logout</a>
+            </div>
+          </div>
+        `;
+        section.querySelector('.profile-btn').addEventListener('click', (e) => {
+          e.preventDefault();
+          showProfileModal();
+        });
+        section.querySelector('.orders-btn').addEventListener('click', (e) => {
+          e.preventDefault();
+          showOrdersModal();
+        });
+        section.querySelector('.address-btn').addEventListener('click', (e) => {
+          e.preventDefault();
+          showAddressModal();
+        });
+        section.querySelector('.payments-btn').addEventListener('click', (e) => {
+          e.preventDefault();
+          showPaymentsModal();
+        });
+        section.querySelector('.logout-btn').addEventListener('click', handleLogout);
+      } else {
+  section.innerHTML = `
+    <div class="dropdown">
+      <button class="btn login-btn">Login / Register</button>
+      <div class="dropdown-content">
+        <a href="login.html" class="dropdown-item">Login</a>
+        <a href="register.html" class="dropdown-item">Register</a>
+      </div>
+    </div>
+  `;
+}
+    });
+  };
+
   // Handle login form
   const handleLogin = (e) => {
     e.preventDefault();
@@ -231,7 +471,7 @@ document.addEventListener('DOMContentLoaded', () => {
     currentUser = { email };
     localStorage.setItem('currentUser', JSON.stringify(currentUser));
     showNotification('Login successful!');
-    updateNavLinks();
+    updateLoginSection();
     setTimeout(() => window.location.href = 'index.html', 1000);
   };
 
@@ -258,7 +498,7 @@ document.addEventListener('DOMContentLoaded', () => {
     currentUser = { name, email };
     localStorage.setItem('currentUser', JSON.stringify(currentUser));
     showNotification('Registration successful!');
-    updateNavLinks();
+    updateLoginSection();
     setTimeout(() => window.location.href = 'index.html', 1000);
   };
 
@@ -268,31 +508,11 @@ document.addEventListener('DOMContentLoaded', () => {
     currentUser = null;
     localStorage.removeItem('currentUser');
     showNotification('Logged out successfully!');
-    updateNavLinks();
+    updateLoginSection();
     setTimeout(() => window.location.href = 'index.html', 1000);
   };
 
-  // Update navigation links
-  const updateNavLinks = () => {
-    const loginLink = document.querySelector('.nav-link[href="login.html"]');
-    const registerLink = document.querySelector('.nav-link[href="register.html"]');
-    const logoutLink = document.querySelector('.nav-link[href="#logout"]');
-
-    if (loginLink && registerLink && logoutLink) {
-      console.log('Updating navigation links, user:', currentUser ? 'Logged in' : 'Logged out');
-      if (currentUser) {
-        loginLink.style.display = 'none';
-        registerLink.style.display = 'none';
-        logoutLink.style.display = 'inline';
-      } else {
-        loginLink.style.display = 'inline';
-        registerLink.style.display = 'inline';
-        logoutLink.style.display = 'none';
-      }
-    }
-  };
-
-  // Handle checkout
+  // Handle checkout with mock order creation
   const handleCheckout = () => {
     console.log('Proceed to checkout clicked');
     if (cart.length === 0) {
@@ -329,6 +549,18 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0).toFixed(2);
+      userOrders.push({
+        id: `ORD${Date.now()}`,
+        items: [...cart],
+        total: parseFloat(total),
+        date: new Date().toLocaleDateString()
+      });
+      savedPayments.push({
+        cardNumber: '**** **** **** 1234',
+        expiry: '12/26'
+      });
+      localStorage.setItem('userOrders', JSON.stringify(userOrders));
+      localStorage.setItem('savedPayments', JSON.stringify(savedPayments));
       showNotification(`Processing payment of $${total}...`);
 
       // Mock payment success
@@ -347,9 +579,8 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   };
 
-  // Function to initialize button event listeners with retry
+  // Initialize button event listeners with retry
   const initializeButtons = (attempt = 1, maxAttempts = 15) => {
-    // Only initialize buttons on products.html
     if (!window.location.pathname.includes('products.html')) {
       console.log('Not on products.html, skipping button initialization');
       return;
@@ -359,7 +590,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const addToCartButtons = document.querySelectorAll('.add-to-cart');
     console.log(`Found ${addToCartButtons.length} Add to Cart buttons`);
 
-    // Debug: Log parent structure of buttons
     if (addToCartButtons.length > 0) {
       addToCartButtons.forEach((button, index) => {
         const parent = button.parentElement;
@@ -473,20 +703,13 @@ document.addEventListener('DOMContentLoaded', () => {
     registerForm.addEventListener('submit', handleRegister);
   }
 
-  // Logout link
-  const logoutLink = document.querySelector('.nav-link[href="#logout"]');
-  if (logoutLink) {
-    console.log('Binding event listener to Logout link');
-    logoutLink.addEventListener('click', handleLogout);
-  }
-
   // Initialize
-  console.log('Initializing cart, nav, and payment form');
+  console.log('Initializing cart, login section, nav, and payment form');
   initializeButtons();
   observeDOM();
   displayCart();
   displayCartSummary();
   updateCartCount();
-  updateNavLinks();
+  updateLoginSection();
   initializePaymentForm();
 });
